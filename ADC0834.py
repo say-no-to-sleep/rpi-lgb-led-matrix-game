@@ -77,17 +77,6 @@ def getResult(channel=0):	 				# Get ADC result, input channel
 	GPIO.output(ADC_DIO, 1)
 	time.sleep(0.000002)
 
-	# ODD
-	# GPIO.output(ADC_CLK, 0)
-	# GPIO.output(ADC_DIO, channel)
-	# time.sleep(0.000002)
-	# GPIO.output(ADC_CLK, 1)
-	# GPIO.output(ADC_DIO, 1)
-	# time.sleep(0.000002)
-	# GPIO.output(ADC_CLK, 0)
-	# GPIO.output(ADC_DIO, 1)
-	# time.sleep(0.000002)
-
 	dat1 = 0
 	for i in range(0, 8):
 		GPIO.output(ADC_CLK, 1);  time.sleep(0.000002)

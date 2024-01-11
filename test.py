@@ -1,8 +1,8 @@
 from rgbmatrix import RGBMatrix, RGBMatrixOptions, graphics
-from time import sleep
-import random
-import getch  # Import the getch module
+import getch
 import threading
+import time
+import random
 
 # Matrix configuration
 options = RGBMatrixOptions()
@@ -68,46 +68,47 @@ input_thread = threading.Thread(target=read_keyboard_input)
 input_thread.daemon = True  # Daemonize thread
 input_thread.start()
 
-try:
-    while True:
-        
-        direction = input_direction
+direction = "RIGHT"  # Set an initial direction
+input_direction = direction  # Synchronize input direction with initial direction
 
-        # Update snake position
-        head = snake[0]
-        if direction == "RIGHT":
-            head = (head[0], head[1] + 1)
-        elif direction == "LEFT":
-            head = (head[0], head[1] - 1)
-        elif direction == "UP":
-            head = (head[0] - 1, head[1])
-        elif direction == "DOWN":
-            head = (head[0] + 1, head[1])
+while True:
+    print(f"Current direction: {direction}, Input direction: {input_direction}")
 
-        # Check for game over conditions
-        if not (0 <= head[0] < 16 and 0 <= head[1] < 32) or head in snake:
-            break  # Snake hits the wall or itself
+    direction = input_direction
 
-        snake.insert(0, head)
+    # Update snake position
+    head = snake[0]
+    print(f"Current head position: {head}")
+    
+    if direction == "RIGHT":
+        head = (head[0], head[1] + 1)
+    elif direction == "LEFT":
+        head = (head[0], head[1] - 1)
+    elif direction == "UP":
+        head = (head[0] - 1, head[1])
+    elif direction == "DOWN":
+        head = (head[0] + 1, head[1])
 
-        # Check for food collision
-        if head == food_pos:
-            update_food_position()  # Place new food
-        else:
-            snake.pop()  # Move the snake
+    print(f"New head position: {head}")
 
-        # Rendering
-        canvas = matrix.CreateFrameCanvas()
-        draw_snake(canvas)
-        draw_food(canvas)
-        canvas = matrix.SwapOnVSync(canvas)
+    # Check for game over conditions
+    if not (0 <= head[0] < 16 and 0 <= head[1] < 32):
+        print("Game over condition met")
+        break  # Snake hits the wall or itself
 
-        sleep(0.1)  # Control game speed
-except KeyboardInterrupt:
-    print("Game stopped by user")
-    # Perform any cleanup if necessary
-except Exception as e:
-    print("An error occurred:", e)
-finally:
-    # Additional cleanup actions (if any)
-    print("Exiting game...")
+    snake.insert(0, head)
+
+    # Check for food collision
+    if head == food_pos:
+        print("Food collision")
+        update_food_position()  # Place new food
+    else:
+        snake.pop()  # Move the snake
+
+    # Rendering
+    canvas = matrix.CreateFrameCanvas()
+    draw_snake(canvas)
+    draw_food(canvas)
+    canvas = matrix.SwapOnVSync(canvas)
+
+    time.sleep(0.2)  # Control game speed
