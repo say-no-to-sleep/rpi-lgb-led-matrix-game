@@ -16,6 +16,7 @@ matrix = RGBMatrix(options=options)
 # Game setup
 dino_pos = [14, 3]  # Initial position of the dino
 obstacles = []
+score = 0
 
 # Colors
 dino_color = graphics.Color(255, 0, 0)  # Red
@@ -29,10 +30,11 @@ def draw_obstacles(canvas):
         canvas.SetPixel(obstacle[1], obstacle[0], obstacle_color.red, obstacle_color.green, obstacle_color.blue)
 
 def update_obstacles():
+    # This function now only spawns new obstacles
     while True:
         sleep_time = random.uniform(1.0, 2.0)
         sleep(sleep_time)
-        obstacles.append([14, 31])
+        obstacles.append([14, 31])  # Spawn new obstacle at the right edge
 
 def read_keyboard_input():
     while True:
@@ -49,6 +51,21 @@ def perform_jump():
         dino_pos[0] += 1
         sleep(0.1)
 
+def draw_score(canvas):
+    global score
+    score_str = str(score)
+    
+    # Load the font from the correct path
+    font = graphics.Font()
+    font.LoadFont("/home/esk/rpi-rgb-led-matrix/fonts/7x13.bdf")
+    
+    textColor = graphics.Color(255, 255, 0)  # Bright yellow color for visibility
+    x_pos = options.cols - len(score_str) * 8  # Adjust x_pos based on score length
+    y_pos = 10  # Set y_pos to a value within the upper area of the matrix
+
+    graphics.DrawText(canvas, font, x_pos, y_pos, textColor, score_str)
+
+
 input_thread = threading.Thread(target=read_keyboard_input)
 input_thread.daemon = True  # Daemonize thread
 input_thread.start()
@@ -59,24 +76,32 @@ obstacle_thread.start()
 
 try:
     while True:
-        # Update dino position
-        dino_pos[0] = min(max(dino_pos[0], 0), 14)
+        # Move obstacles to the left
+        for obstacle in obstacles:
+            obstacle[1] -= 1  # Move each obstacle left
 
-        # Remove obstacles that have passed the screen
-        obstacles = [obstacle for obstacle in obstacles if obstacle[1] > 0]
+        # Remove obstacles that have left the screen
+        obstacles = [obstacle for obstacle in obstacles if obstacle[1] >= 0]
 
-        # Generate new obstacles randomly
-        if random.random() < 0.1:
-            obstacles.append([14, 31])
+         # Check for game over conditions
+        if [dino_pos[0], dino_pos[1]] in obstacles:
+            break  # Dino hits an obstacle
 
         # Check for game over conditions
         if [dino_pos[0], dino_pos[1]] in obstacles:
             break  # Dino hits an obstacle
 
+        for obstacle in obstacles:
+            if obstacle[1] == dino_pos[1] - 1 and dino_pos[0] < 14:
+                score += 1  # Increment score when dino jumps over an obstacle
+                print(f'Score: {score}')
+
+
         # Rendering
         canvas = matrix.CreateFrameCanvas()
         draw_dino(canvas)
         draw_obstacles(canvas)
+        draw_score(canvas)  # Draw the score
         canvas = matrix.SwapOnVSync(canvas)
 
         sleep(0.1)  # Control game speed
