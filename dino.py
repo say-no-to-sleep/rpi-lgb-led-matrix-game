@@ -17,6 +17,7 @@ matrix = RGBMatrix(options=options)
 dino_pos = [14, 3]  # Initial position of the dino
 obstacles = []
 score = 0
+is_on_ground = True
 
 # Colors
 dino_color = graphics.Color(255, 0, 0)  # Red
@@ -38,18 +39,30 @@ def update_obstacles():
 
 def read_keyboard_input():
     while True:
-        char = getch.getch()  # Get a single character from the keyboard
+        char = getch.getch()
         if char.lower() == ' ':
             jump_thread = threading.Thread(target=perform_jump)
             jump_thread.start()
 
+# Modify the perform_jump function
 def perform_jump():
-    for _ in range(5):
-        dino_pos[0] -= 1
-        sleep(0.1)
-    for _ in range(5):
-        dino_pos[0] += 1
-        sleep(0.1)
+    global is_on_ground
+    if is_on_ground:
+        is_on_ground = False
+        # Ascent with decreasing sleep time (faster movement)
+        ascent_intervals = [0.1, 0.08, 0.05, 0.03, 0.01]
+        for interval in ascent_intervals:
+            dino_pos[0] -= 1
+            sleep(interval)
+
+        # Descent with increasing sleep time (faster movement)
+        descent_intervals = [0.01, 0.03, 0.05, 0.08, 0.1]
+        for interval in descent_intervals:
+            dino_pos[0] += 1
+            sleep(interval)
+
+        is_on_ground = True
+
 
 def draw_score(canvas):
     global score
@@ -57,11 +70,11 @@ def draw_score(canvas):
     
     # Load the font from the correct path
     font = graphics.Font()
-    font.LoadFont("/home/esk/rpi-rgb-led-matrix/fonts/7x13.bdf")
+    font.LoadFont("/home/esk/rpi-rgb-led-matrix/fonts/6x10.bdf")
     
     textColor = graphics.Color(255, 255, 0)  # Bright yellow color for visibility
     x_pos = options.cols - len(score_str) * 8  # Adjust x_pos based on score length
-    y_pos = 10  # Set y_pos to a value within the upper area of the matrix
+    y_pos = 9  # Set y_pos to a value within the upper area of the matrix
 
     graphics.DrawText(canvas, font, x_pos, y_pos, textColor, score_str)
 
@@ -104,7 +117,7 @@ try:
         draw_score(canvas)  # Draw the score
         canvas = matrix.SwapOnVSync(canvas)
 
-        sleep(0.1)  # Control game speed
+        sleep(0.06)  # Control game speed
 
 except KeyboardInterrupt:
     print("Game stopped by user")
