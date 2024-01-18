@@ -71,44 +71,51 @@ input_thread.start()
 direction = "RIGHT"  # Set an initial direction
 input_direction = direction  # Synchronize input direction with initial direction
 
-while True:
-    print(f"Current direction: {direction}, Input direction: {input_direction}")
+try:
+    while True:
+        print(f"Current direction: {direction}, Input direction: {input_direction}")
 
-    direction = input_direction
+        direction = input_direction
 
-    # Update snake position
-    head = snake[0]
-    print(f"Current head position: {head}")
-    
-    if direction == "RIGHT":
-        head = (head[0], head[1] + 1)
-    elif direction == "LEFT":
-        head = (head[0], head[1] - 1)
-    elif direction == "UP":
-        head = (head[0] - 1, head[1])
-    elif direction == "DOWN":
-        head = (head[0] + 1, head[1])
+        # Update snake position
+        head = snake[0]
+        print(f"Current head position: {head}")
+        
+        if direction == "RIGHT":
+            head = (head[0], head[1] + 1)
+        elif direction == "LEFT":
+            head = (head[0], head[1] - 1)
+        elif direction == "UP":
+            head = (head[0] - 1, head[1])
+        elif direction == "DOWN":
+            head = (head[0] + 1, head[1])
 
-    print(f"New head position: {head}")
+        print(f"New head position: {head}")
 
-    # Check for game over conditions
-    if not (0 <= head[0] < 16 and 0 <= head[1] < 32):
-        print("Game over condition met")
-        break  # Snake hits the wall or itself
+        # Check for game over conditions
+        if not (0 <= head[0] < 16 and 0 <= head[1] < 32):
+            print("Game over condition met")
+            break  # Snake hits the wall or itself
 
-    snake.insert(0, head)
+        snake.insert(0, head)
 
-    # Check for food collision
-    if head == food_pos:
-        print("Food collision")
-        update_food_position()  # Place new food
-    else:
-        snake.pop()  # Move the snake
+        # Check for food collision
+        if head == food_pos:
+            print("Food collision")
+            update_food_position()  # Place new food
+        else:
+            snake.pop()  # Move the snake
 
-    # Rendering
-    canvas = matrix.CreateFrameCanvas()
-    draw_snake(canvas)
-    draw_food(canvas)
-    canvas = matrix.SwapOnVSync(canvas)
+        # Rendering
+        canvas = matrix.CreateFrameCanvas()
+        draw_snake(canvas)
+        draw_food(canvas)
+        canvas = matrix.SwapOnVSync(canvas)
 
-    time.sleep(0.2)  # Control game speed
+        time.sleep(0.1)  # Control game speed
+except KeyboardInterrupt:
+    print("Game stopped by user")
+except Exception as e:
+    print("An error occurred:", e)
+finally:
+    print("Exiting game...")
